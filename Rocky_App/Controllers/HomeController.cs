@@ -18,22 +18,20 @@ namespace rocky.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly ICategoryRepositoy _categoryRepositoy;
-        private readonly IProductRepository _productRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public HomeController(ILogger<HomeController> logger, ICategoryRepositoy categoryRepositoy, IProductRepository productRepository)
+        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
         {
             _logger = logger;
-            _categoryRepositoy = categoryRepositoy;
-            _productRepository = productRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public IActionResult Index()
         {
             HomeVM obj = new HomeVM()
             {
-                Categories = _categoryRepositoy.GetAll(),
-                Products = _productRepository.GetAll(includeProperties:"Category,ApplicationType")
+                Categories = _unitOfWork.Categories.GetAll(),
+                Products = _unitOfWork.Products.GetAll(includeProperties:"Category,ApplicationType")
             };
             return View(obj);
         }
@@ -59,7 +57,7 @@ namespace rocky.Controllers
             }
             DetailsVM DetailsVM = new DetailsVM()
             {
-                Product = _productRepository.FirstOrDefault(p => p.Id == id, "Category,ApplicationType"),
+                Product = _unitOfWork.Products.FirstOrDefault(p => p.Id == id, "Category,ApplicationType"),
                 ExistsInCart = false
             };
             foreach(ShoppingCart item in shoppingCarts)

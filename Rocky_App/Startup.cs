@@ -45,12 +45,12 @@ namespace rocky
                 Option.Cookie.IsEssential = true;
             });
             services.AddControllersWithViews();
-            services.AddScoped<ICategoryRepositoy, CategoryRepositoy>();
-            services.AddScoped<IApplicationTypeRepositoy, ApplicationTypeRepository>();
-            services.AddScoped<IProductRepository, ProductRepository>();
-            services.AddScoped<IInquiryHeaderRepository, InquiryHeaderRepository>();
-            services.AddScoped<IInquiryDetailRepository, InquiryDetailRepository>();
-            services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
+            //services.AddScoped<ICategoryRepositoy, CategoryRepositoy>();
+            //services.AddScoped<IApplicationTypeRepositoy, ApplicationTypeRepository>();
+            //services.AddScoped<IProductRepository, ProductRepository>();
+            //services.AddScoped<IInquiryHeaderRepository, InquiryHeaderRepository>();
+            //services.AddScoped<IInquiryDetailRepository, InquiryDetailRepository>();
+            //services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             services
