@@ -103,6 +103,8 @@
                                             OrderTotal += (Model.ProductList[i].Price * Model.ProductList[i].TempSqft);
                                             <input type="hidden" asp-for="@Model.ProductList[i].Name" />
                                             <input type="hidden" asp-for="@Model.ProductList[i].Id" />
+                                            <input type="hidden" asp-for="@Model.ProductList[i].Id" />
+                                            <input type="hidden" asp-for="@Model.ProductList[i].TempSqft" />
                                             <li class="list-group-item d-flex justify-content-between">
                                                 <div>
                                                     <h6 class="my-0">@Model.ProductList[i].Name</h6>

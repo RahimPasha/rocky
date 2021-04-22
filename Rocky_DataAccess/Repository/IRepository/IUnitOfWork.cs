@@ -15,6 +15,8 @@ namespace Rocky_DataAccess.Repository
         IInquiryDetailRepository InquiryDetails { get; }
         IInquiryHeaderRepository InquiryHeaders { get; }
         IApplicationUserRepository applicationUsers { get; }
+        IOrderHeaderRepository OrderHeaders { get; }
+        IOrderDetailRepository OrderDetails { get; }
         int Complete();
     }
 }

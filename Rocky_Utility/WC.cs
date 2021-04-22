@@ -18,7 +18,12 @@ namespace Rocky_Utility
         public static string ApplicationTypeName = "ApplicationType";
         public static string Success = "Success";
         public static string Error = "Error";
-
-
+        
+        public static string StatusPending = "Pending";
+        public static string StatusApproved = "Approved";
+        public static string StatusProcessing = "Processing";
+        public static string StatusShipped = "Shipped";
+        public static string StatusCanceled = "Canceled";
+        public static string StatusRefunded = "Refunded";
     }
 }

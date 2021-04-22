@@ -1,4 +1,6 @@
 ﻿using Rocky_DataAccess.Repository.IRepository;
+using System.Linq;
+
 
 namespace Rocky_DataAccess.Repository
 {
@@ -15,6 +17,8 @@ namespace Rocky_DataAccess.Repository
             InquiryDetails = new InquiryDetailRepository(_db);
             InquiryHeaders = new InquiryHeaderRepository(_db);
             applicationUsers = new ApplicationUserRepository(_db);
+            OrderHeaders = new OrderHeaderRepository(_db);
+            OrderDetails = new OrderDetailRepository(_db);
 
         }
 
@@ -27,6 +31,10 @@ namespace Rocky_DataAccess.Repository
         public IInquiryHeaderRepository InquiryHeaders { get; private set; }
 
         public IApplicationUserRepository applicationUsers { get; private set; }
+
+        public IOrderHeaderRepository OrderHeaders { get; set; }
+
+        public IOrderDetailRepository OrderDetails { get; set; }
 
         public int Complete()
         {
