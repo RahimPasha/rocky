@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Braintree;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -7,6 +8,7 @@ using Rocky_DataAccess.Repository;
 using Rocky_Models;
 using Rocky_Models.ViewModels;
 using Rocky_Utility;
+using Rocky_Utility.BrainTree;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,7 +24,7 @@ namespace rocky.Controllers
     public class CartController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-
+        private readonly IBrainTreeGate _brain;
 
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IEmailSender _emailSender;
@@ -30,9 +32,9 @@ namespace rocky.Controllers
         [BindProperty]
         public ProductUserVM ProductUserVM { get; set; }
         public CartController(IWebHostEnvironment webHostEnvironment, 
-            IEmailSender emailSender, IUnitOfWork unitOfWork)
+            IEmailSender emailSender, IUnitOfWork unitOfWork, IBrainTreeGate brainTreeGate)
         {
-
+            _brain = brainTreeGate;
             _webHostEnvironment = webHostEnvironment;
             _emailSender = emailSender;
             _unitOfWork = unitOfWork;
@@ -50,8 +52,8 @@ namespace rocky.Controllers
 
             foreach(var prod in products)
             {
-                prod.TempSqft = shoppingCarts.FirstOrDefault(s => s.ProductId == prod.Id) != null ?
-                    shoppingCarts.FirstOrDefault(s => s.ProductId == prod.Id).Sqft : prod.TempSqft;
+                prod.TempSqFt = shoppingCarts.FirstOrDefault(s => s.ProductId == prod.Id) != null ?
+                    shoppingCarts.FirstOrDefault(s => s.ProductId == prod.Id).Sqft : prod.TempSqFt;
             }
 
             return View(products);
@@ -74,6 +76,12 @@ namespace rocky.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+        public IActionResult ClearCart()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Index","Home");
+        }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -83,7 +91,7 @@ namespace rocky.Controllers
             List<ShoppingCart> shoppingCarts = new List<ShoppingCart>();
             foreach (var prod in products)
             {
-                shoppingCarts.Add(new ShoppingCart { ProductId = prod.Id, Sqft = prod.TempSqft });
+                shoppingCarts.Add(new ShoppingCart { ProductId = prod.Id, Sqft = prod.TempSqFt });
             }
             HttpContext.Session.Set(WC.SessionCart, shoppingCarts);
             return RedirectToAction(nameof(Summary));
@@ -111,6 +119,9 @@ namespace rocky.Controllers
                 {
                     applicationUser = new ApplicationUser();
                 }
+                var gateWay = _brain.GetGateWay();
+                var clientToken = gateWay.ClientToken.Generate();
+                ViewBag.ClientToken = clientToken;
             }
             else
             {
@@ -135,7 +146,7 @@ namespace rocky.Controllers
             };
             foreach(var item in shoppingCarts)
             {
-                ProductUserVM.ProductList.First(p => p.Id == item.ProductId).TempSqft = item.Sqft;
+                ProductUserVM.ProductList.First(p => p.Id == item.ProductId).TempSqFt = item.Sqft;
             }
 
             return View(ProductUserVM);
@@ -143,7 +154,7 @@ namespace rocky.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("Summary")]
-        public async Task<IActionResult> SummaryPost()
+        public async Task<IActionResult> SummaryPost(IFormCollection collection)
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
@@ -153,13 +164,13 @@ namespace rocky.Controllers
                 //var orderTotal = 0.0;
                 //foreach(var prod in ProductUserVM.ProductList)
                 //{
-                //    orderTotal += prod.Price * prod.TempSqft;
+                //    orderTotal += prod.Price * prod.TempSqFt;
                 //}
                 OrderHeader orderHeader = new OrderHeader()
                 {
                     CreatedByUserId = claim.Value,
                     //FinalOrderTotal = orderTotal,
-                    FinalOrderTotal = ProductUserVM.ProductList.Sum(x => x.TempSqft * x.Price),
+                    FinalOrderTotal = ProductUserVM.ProductList.Sum(x => x.TempSqFt * x.Price),
                     City = ProductUserVM.ApplicationUser.City,
                     StreetAddress = ProductUserVM.ApplicationUser.StreetAddress,
                     State = ProductUserVM.ApplicationUser.State,
@@ -179,10 +190,37 @@ namespace rocky.Controllers
                     {
                         OrderHeaderId = orderHeader.Id,
                         PricePerSqFt = prod.Price,
-                        Sqft = prod.TempSqft,
+                        Sqft = prod.TempSqFt,
                         ProductId = prod.Id
                     };
                     _unitOfWork.OrderDetails.Add(orderDetail);
+                }
+                _unitOfWork.Complete();
+
+                string nonceFromTheClient = collection["payment_method_nonce"];
+
+                var request = new TransactionRequest
+                {
+                    Amount = Convert.ToDecimal(orderHeader.FinalOrderTotal),
+                    PaymentMethodNonce = nonceFromTheClient,
+                    OrderId=orderHeader.Id.ToString(),
+
+                    Options = new TransactionOptionsRequest
+                    {
+                        SubmitForSettlement = true
+                    }
+                };
+
+                var gateway = _brain.GetGateWay();
+                Result<Transaction> result = gateway.Transaction.Sale(request);
+                if(result.Target.ProcessorResponseText == "Approved")
+                {
+                    orderHeader.TransactionId = result.Target.Id;
+                    orderHeader.OrderStatus = WC.StatusApproved;
+                }
+                else
+                {
+                    orderHeader.OrderStatus = WC.StatusCanceled;
                 }
                 _unitOfWork.Complete();
                 return RedirectToAction(nameof(InquiryConfirmation), new { id = orderHeader.Id});
@@ -245,7 +283,7 @@ namespace rocky.Controllers
             List<ShoppingCart> shoppingCarts = new List<ShoppingCart>();
             foreach(var prod in products)
             {
-                shoppingCarts.Add(new ShoppingCart { ProductId = prod.Id, Sqft = prod.TempSqft });
+                shoppingCarts.Add(new ShoppingCart { ProductId = prod.Id, Sqft = prod.TempSqFt });
             }
             HttpContext.Session.Set(WC.SessionCart, shoppingCarts);
             return RedirectToAction(nameof(Index));

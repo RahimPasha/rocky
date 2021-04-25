@@ -11,7 +11,7 @@ namespace Rocky_Models
     {
         public Product()
         {
-            TempSqft = 1;
+            TempSqFt = 1;
         }
         [Key]
         public int Id { get; set; }
@@ -38,7 +38,7 @@ namespace Rocky_Models
 
         [NotMapped]
         [Range(1,10000)]
-        public int TempSqft { get; set; }
+        public int TempSqFt { get; set; }
 
     }
 }
