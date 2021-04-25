@@ -79,7 +79,7 @@ namespace rocky.Controllers
             {
                 shoppingCarts = HttpContext.Session.Get<List<ShoppingCart>>(WC.SessionCart);                
             }
-            shoppingCarts.Add(new ShoppingCart { ProductId = id, Sqft=detailsVM.Product.TempSqft});
+            shoppingCarts.Add(new ShoppingCart { ProductId = id, Sqft=detailsVM.Product.TempSqFt});
             HttpContext.Session.Set(WC.SessionCart, shoppingCarts);
             return RedirectToAction(nameof(Index));
         }

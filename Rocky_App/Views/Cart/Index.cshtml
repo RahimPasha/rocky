@@ -15,6 +15,7 @@
                                 Shopping Cart
                             </div>
                             <div class="col-6 text-right">
+                                <a asp-action="ClearCart" class="btn btn-outline-warning btn-sm">Clear Cart</a>
                                 <a asp-action="Index" asp-controller="Home" class="btn btn-outline-info btn-sm">Continue Shopping</a>
                             </div>
                         </div>
@@ -90,11 +91,11 @@
                                             <span style="font-size:17px;"> @Model[i].Price.ToString("c")</span>/ sqft
                                         </div>
                                         <div class="col-3 col-lg-2 pt-lg-4" style="font-size:11px;">
-                                            <input asp-for="@Model[i].TempSqft" class="form-control" />
-                                            <span asp-validation-for="@Model[i].TempSqft" class="text-danger"></span>
+                                            <input asp-for="@Model[i].TempSqFt" class="form-control" />
+                                            <span asp-validation-for="@Model[i].TempSqFt" class="text-danger"></span>
                                         </div>
                                         <div class="col-4 col-lg-2 pt-lg-4" style="font-size:11px;">
-                                            <span style="font-size:17px;"> @((Model[i].Price * Model[i].TempSqft).ToString("c"))</span>
+                                            <span style="font-size:17px;"> @((Model[i].Price * Model[i].TempSqFt).ToString("c"))</span>
                                         </div>
 
                                     }
@@ -111,7 +112,7 @@
                                     </div>
                                 </div>
 
-                                orderTotal += (Model[i].Price * Model[i].TempSqft);
+                                orderTotal += (Model[i].Price * Model[i].TempSqFt);
                             }
                             @if (User.IsInRole(WC.AdminRole))
                             {
