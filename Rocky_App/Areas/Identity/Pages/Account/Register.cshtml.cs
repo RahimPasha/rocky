@@ -69,8 +69,10 @@ namespace rocky.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
+            [Required]
             public string FullName { get; set; }
-            public string PhomeNumber { get; set; }
+            [Required]
+            public string PhoneNumber { get; set; }
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -92,7 +94,7 @@ namespace rocky.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email, 
-                    PhoneNumber = Input.PhomeNumber, FullName = Input.FullName};
+                    PhoneNumber = Input.PhoneNumber, FullName = Input.FullName};
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
@@ -125,15 +127,16 @@ namespace rocky.Areas.Identity.Pages.Account
                     }
                     else
                     {
-                        if (!User.IsInRole(WC.AdminRole))
+                        if (User.IsInRole(WC.AdminRole))
                         {
-                            await _signInManager.SignInAsync(user, isPersistent: false);
+                            TempData[WC.Success] = user.FullName + " has been registered.";
+                            return RedirectToAction("Index", "Home");
                         }
                         else
                         {
-                            return RedirectToAction("Index");
+                            await _signInManager.SignInAsync(user, isPersistent: false);
+                            return LocalRedirect(returnUrl);
                         }
-                        return LocalRedirect(returnUrl);
                     }
                 }
                 foreach (var error in result.Errors)

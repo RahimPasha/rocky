@@ -11,7 +11,7 @@
                         Order Summary
                     </div>
                     <div class="col-6 text-right">
-                        <a class="btn btn-outline-info btn-sm">Back to Cart</a>
+                        <a class="btn btn-outline-info btn-sm" asp-action="Index">Back to Cart</a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -29,7 +29,6 @@
                                     </div>
                                     <div class="col-9">
                                         <input asp-for="ApplicationUser.FullName" type="text" class="form-control" />
-                                        <span asp-validation-for="ApplicationUser.FullName" class="text-danger"></span>
                                     </div>
                                 </div>
                                 <div class="row my-1">
@@ -38,7 +37,6 @@
                                     </div>
                                     <div class="col-9">
                                         <input asp-for="ApplicationUser.PhoneNumber" required type="text" class="form-control" />
-                                        <span asp-validation-for="ApplicationUser.PhoneNumber" class="text-danger"></span>
                                     </div>
                                 </div>
                                 <div class="row my-1">
@@ -47,7 +45,6 @@
                                     </div>
                                     <div class="col-9">
                                         <input asp-for="ApplicationUser.Email" required type="text" class="form-control" />
-                                        <span asp-validation-for="ApplicationUser.Email" class="text-danger"></span>
                                     </div>
                                 </div>
                                 @if (User.IsInRole(Rocky_Utility.WC.AdminRole))
@@ -59,7 +56,6 @@
                                         </div>
                                         <div class="col-9">
                                             <input asp-for="ApplicationUser.StreetAddress" type="text" class="form-control" />
-                                            <span asp-validation-for="ApplicationUser.StreetAddress" class="text-danger"></span>
                                         </div>
                                     </div>
 
@@ -69,7 +65,6 @@
                                         </div>
                                         <div class="col-9">
                                             <input asp-for="ApplicationUser.City" type="text" class="form-control" />
-                                            <span asp-validation-for="ApplicationUser.City" class="text-danger"></span>
                                         </div>
                                     </div>
 
@@ -79,7 +74,6 @@
                                         </div>
                                         <div class="col-9">
                                             <input asp-for="ApplicationUser.State" type="text" class="form-control" />
-                                            <span asp-validation-for="ApplicationUser.State" class="text-danger"></span>
                                         </div>
                                     </div>
 
@@ -89,7 +83,6 @@
                                         </div>
                                         <div class="col-9">
                                             <input asp-for="ApplicationUser.PostalCode" type="text" class="form-control" />
-                                            <span asp-validation-for="ApplicationUser.PostalCode" class="text-danger"></span>
                                         </div>
                                     </div>
                                 }
@@ -154,11 +147,11 @@
                         <div class="col-12 col-md-5 offset-md-7">
                             @if (User.IsInRole(Rocky_Utility.WC.AdminRole))
                             {
-                                <button class="btn btn-success form-control" id="submit-button">Submit Order</button>
+                                <button class="btn btn-success form-control" onclick="return validateInput()" id="submit-button">Submit Order</button>
                             }
                             else
                             {
-                                <button type="submit" class="btn btn-primary form-control">Submit Inquiry</button>
+                                <button type="submit" onclick="return validateInput()" class="btn btn-primary form-control">Submit Inquiry</button>
                             }
                         </div>
                     </div>
@@ -171,24 +164,62 @@
 
 @section Scripts{
     <partial name="_ValidationScriptsPartial" />
-    <script src="https://js.braintreegateway.com/web/dropin/1.27.0/js/dropin.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/dropin/1.22.1/js/dropin.min.js"></script>
+
+
+    @if (User.IsInRole(Rocky_Utility.WC.AdminRole))
+    {
     <script>
-        var client_token = "@ViewBag.ClientToken";
-        var form = document.querySelector('#payment-form');
-        braintree.dropin.create({
-            authorization: client_token,
-              container: '#dropin-container'
-            }, function (createErr, instance) {
-                    form.addEventListener('submit', function () {
-                        event.preventDefault();
-                        //Add the nonce to the form and submit
-                                instance.requestPaymentMethod(function (err, payload) {
-                                    // Submit payload.nonce to your server
-                                    document.querySelector('#nonce').value = payload.nonce;
-                                    form.submit();
-                                });
+                    var client_token = "@ViewBag.ClientToken";
+                    var form = document.querySelector('#payment-form');
+                    braintree.dropin.create({
+                        authorization: client_token,
+                        container: '#dropin-container'
+                    }, function (createErr, instance) {
+                        form.addEventListener('submit', function () {
+                            event.preventDefault();
+                            //Add the nonce to the form and submit
+                            instance.requestPaymentMethod(function (err, payload) {
+                                // Submit payload.nonce to your server
+                                document.querySelector('#nonce').value = payload.nonce;
+                                form.submit();
                             });
-            });
+                        });
+                    });
+    </script>
+    }
+    <script>
+
+        function validateInput() {
+            var app_name = document.getElementById("ApplicationUser_FullName").value;
+            var app_phone = document.getElementById("ApplicationUser_PhoneNumber").value;
+            var app_email = document.getElementById("ApplicationUser_Email").value;
+            if (app_name.toString() == '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please enter Full Name!'
+                })
+                return false;
+            }
+            if (app_phone.toString() == '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please enter Phone Number!'
+                })
+                return false;
+            }
+            if (app_email.toString() == '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please enter Email!'
+                })
+                return false;
+            }
+            return true;
+        }
     </script>
 
 }

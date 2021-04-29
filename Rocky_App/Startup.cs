@@ -60,6 +60,12 @@ namespace rocky
                 .AddMvc();
             services.AddSwaggerGen();
 
+            services.AddAuthentication().AddFacebook(Options =>
+            {
+                Options.AppId = "303089521212150";
+                Options.AppSecret = "9098de8cc748e51f59cb1004be0b436e";
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
