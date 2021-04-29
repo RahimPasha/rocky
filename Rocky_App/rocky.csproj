@@ -8,6 +8,7 @@
   <ItemGroup>
     <PackageReference Include="Braintree" Version="5.5.0" />
     <PackageReference Include="mailjet.api" Version="2.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="5.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.5" />
@@ -20,6 +21,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
     <PackageReference Include="NUnit" Version="3.13.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.2" />
+    <PackageReference Include="Syncfusion.EJ2.AspNet.Core" Version="19.1.0.58" />
     <PackageReference Include="toastr" Version="2.1.1" />
   </ItemGroup>
 
